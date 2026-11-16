@@ -25,28 +25,7 @@ from entrada import (  # noqa: F401  (nomes reexportados)
     validar_pergunta,
 )
 from erros import ErroAssistente
-
-INSTRUCOES = (
-    "Você é um assistente que responde perguntas sobre o Regulamento da "
-    "Organização Didática (ROD) do IFCE. Responda usando SOMENTE o trecho "
-    "fornecido. Cite o artigo de origem, por exemplo (Art. 99). Se a resposta "
-    "não estiver no trecho, responda exatamente: "
-    "'Não encontrei essa informação no trecho fornecido.' "
-    "Nunca invente regras."
-)
-
-
-def montar_requisicao(trecho, pergunta, modelo):
-    """Monta o corpo JSON enviado à API."""
-    return {
-        "model": modelo,
-        "max_completion_tokens": MAX_TOKENS_SAIDA,
-        "messages": [
-            {"role": "system", "content": INSTRUCOES},
-            {"role": "user", "content": f"TRECHO:\n{trecho}\n\nPERGUNTA: {pergunta}"},
-        ],
-    }
-
+from solicitacao import INSTRUCOES, montar_solicitacao  # noqa: F401
 
 def _detalhe_do_erro(resposta):
     """Texto do erro devolvido pela API, em minúsculas, ou '' se não houver."""
@@ -130,7 +109,7 @@ def responder(caminho, pergunta, config=None):
     """Fluxo completo: valida entradas, consulta o LLM e devolve o texto."""
     entrada = montar_entrada(caminho, pergunta)
     config = config or carregar_configuracao(carregar_dotenv=False)
-    corpo = montar_requisicao(entrada.trecho, entrada.pergunta, config.modelo)
+    corpo = montar_solicitacao(entrada, config)
     return extrair_texto(chamar_llm(corpo, config))
 
 
