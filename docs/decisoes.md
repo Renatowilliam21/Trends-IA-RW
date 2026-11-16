@@ -26,6 +26,20 @@ chamada ao modelo, resposta e apresentação) tem seu módulo, e `rod_assistente
 orquestra. Assim cada parte é testada isolada e uma troca de provedor mexe quase só em
 `config.py`, `solicitacao.py`, `cliente.py` e `resposta.py`.
 
+**Parâmetros fora do núcleo.** Modelo, limite de tokens, tempo limite, temperatura,
+esforço de raciocínio e nível de log ficam em `configuracao.toml`, com variáveis de ambiente
+por cima. A ordem é padrão do código, depois TOML, depois ambiente. Escolhi TOML porque
+`tomllib` já vem no Python 3.11 e não exige biblioteca nova. Temperatura e esforço de
+raciocínio só entram na requisição quando definidos, porque alguns modelos recusam valores
+diferentes do padrão. O núcleo (`solicitacao.py`) apenas lê a configuração.
+
+**Registros.** O log guarda só o que ajuda a entender a execução: modelo, tamanhos em
+caracteres, parâmetros, status HTTP, latência, contagem de tokens e tipo do erro. Não guarda
+chave, pergunta, trecho, resposta nem caminho de arquivo, porque a pergunta de um aluno ou
+servidor pode conter dado pessoal. O texto das mensagens de erro também fica de fora (uma
+delas inclui o caminho do arquivo). Um filtro mascara padrões parecidos com chave como
+segunda barreira, e testes automatizados verificam que nada disso vaza.
+
 **Validação local da credencial.** Antes de qualquer chamada, `config.py` confere se a
 credencial existe, não tem aspas ou espaços e começa com `sk-`. Isso dá uma mensagem
 clara sem gastar uma requisição. A credencial recusada pelo serviço (HTTP 401 ou 403) é

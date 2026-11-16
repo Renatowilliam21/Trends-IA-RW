@@ -9,27 +9,68 @@ em documentos institucionais longos.
 
 ## Requisitos
 
-- Python 3.10 ou superior
+- Python 3.11 ou superior (usa o módulo `tomllib`). Versões testadas em `docs/ambiente.md`.
+- Git
 - Uma chave de API da OpenAI (https://platform.openai.com/api-keys), com crédito na conta de desenvolvedor. A assinatura do ChatGPT não inclui acesso à API.
 
 ## Instalação
 
+Linux ou macOS:
+
 ```bash
 git clone https://github.com/Renatowilliam21/Trends-IA-RW.git
 cd Trends-IA-RW
-python -m venv .venv
-source .venv/bin/activate        # no Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Configuração
+Windows (PowerShell):
 
-```bash
-cp .env.example .env
+```powershell
+git clone https://github.com/Renatowilliam21/Trends-IA-RW.git
+cd Trends-IA-RW
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-Abra o `.env` e preencha `OPENAI_API_KEY` com a sua chave. Opcionalmente, defina `OPENAI_MODEL` para trocar o modelo (padrão: `gpt-5.6-terra`). Os nomes de modelos mudam com frequência; se aparecer "Modelo não encontrado", consulte a lista atual na documentação da OpenAI. O arquivo `.env` está no
-`.gitignore` e não deve ser enviado ao GitHub.
+Se o PowerShell bloquear a ativação do ambiente, rode uma vez
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` e tente de novo.
+
+## Configuração
+
+**1. Credencial (obrigatória).** Crie o arquivo `.env` a partir do modelo e coloque a sua
+chave, que começa com `sk-`, sem aspas e sem espaços:
+
+```bash
+cp .env.example .env              # Windows: copy .env.example .env
+```
+
+```text
+OPENAI_API_KEY=sk-...sua-chave...
+```
+
+O `.env` está no `.gitignore` e nunca deve ser enviado ao GitHub. A chave é lida somente
+dele (ou do ambiente), nunca do `configuracao.toml`.
+
+**2. Parâmetros (opcional).** O arquivo `configuracao.toml` guarda os parâmetros sem
+segredos. Altere ali, sem mexer no código. Uma variável de ambiente (ou uma linha no
+`.env`) tem prioridade sobre o arquivo.
+
+| Parâmetro | `configuracao.toml` | Variável | Padrão |
+| --- | --- | --- | --- |
+| Modelo | `[modelo] nome` | `OPENAI_MODEL` | `gpt-5.6-terra` |
+| Limite de tokens de saída | `[geracao] max_tokens` | `OPENAI_MAX_TOKENS` | 2048 |
+| Temperatura (opcional) | `[geracao] temperature` | `OPENAI_TEMPERATURE` | não enviada |
+| Esforço de raciocínio (opcional) | `[geracao] reasoning_effort` | `OPENAI_REASONING_EFFORT` | não enviado |
+| Tempo limite da chamada (s) | `[servico] timeout_segundos` | `OPENAI_TIMEOUT` | 30 |
+| Nível do registro | `[registro] nivel` | `ROD_LOG_NIVEL` | INFO |
+| Arquivo de registro | `[registro] arquivo` | `ROD_LOG_ARQUIVO` | `logs/assistente.log` |
+
+Os nomes de modelos mudam com frequência e nem todo modelo aceita todos os parâmetros. Se
+a API recusar um parâmetro, a mensagem de erro mostra o motivo. Para outro arquivo de
+parâmetros, use `ROD_CONFIG=caminho/do/arquivo.toml`.
 
 ## Execução
 
@@ -58,13 +99,29 @@ Você pode usar qualquer outro `.txt` de até 60 mil caracteres.
 | Módulo | Responsabilidade |
 | --- | --- |
 | `src/entrada.py` | captura dos argumentos e validação da pergunta e do arquivo |
-| `src/config.py` | carregamento e validação da configuração e da credencial |
+| `src/config.py` | carregamento e validação da configuração (padrões, `configuracao.toml`, ambiente) e da credencial |
 | `src/solicitacao.py` | preparação da solicitação enviada ao modelo |
 | `src/cliente.py` | chamada ao modelo e tradução das falhas de rede e HTTP |
 | `src/resposta.py` | tratamento da resposta (vazia, recusada, formato inesperado) |
 | `src/apresentacao.py` | exibição da resposta e das mensagens de erro |
+| `src/registro.py` | registros da execução, sem dados sensíveis |
 | `src/rod_assistente.py` | orquestra as etapas acima (ponto de entrada) |
 | `src/erros.py` | tipos de erro previstos |
+
+## Registros
+
+Cada execução grava linhas simples em `logs/assistente.log` (pasta ignorada pelo Git, com
+rotação de 200 KB). Exemplo:
+
+```text
+2026-11-15 21:40:02 INFO rod inicio modelo=gpt-5.6-terra trecho_chars=3210 pergunta_chars=58 max_tokens=2048 temperature=None reasoning_effort=None
+2026-11-15 21:40:09 INFO rod.cliente resposta status=200 latencia_ms=7312
+2026-11-15 21:40:09 INFO rod sucesso resposta_chars=142 prompt_tokens=1022 completion_tokens=310 total_tokens=1332
+```
+
+O registro **não** guarda chave, cabeçalhos, texto da pergunta, conteúdo do trecho, texto
+da resposta nem caminhos de arquivo. Só tamanhos, status, tempo, contagem de tokens e o
+tipo do erro. Há testes automatizados que verificam isso (`tests/test_registro.py`).
 
 ## Erros e mensagens
 
@@ -102,6 +159,8 @@ manuais com a API real estão registrados em `docs/testes.md`.
 ## Documentação
 
 - `docs/testes.md`: testes simulados e reais, casos de sucesso e de falha
+- `docs/ambiente.md`: versões do Python e das bibliotecas
+- `docs/validacao-ambiente.md`: validação em ambiente limpo, problemas encontrados e correções
 - `docs/decisoes.md`: principais decisões de projeto
 - `docs/uso-de-ia.md`: como ferramentas de IA foram usadas no desenvolvimento
 
