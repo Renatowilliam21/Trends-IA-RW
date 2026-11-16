@@ -1,6 +1,7 @@
 # Uso de ferramentas de IA no desenvolvimento
 
-**Ferramenta:** Claude (Anthropic), em conversa de chat com acesso a terminal.
+**Ferramenta usada no desenvolvimento:** Claude (Anthropic), em conversa de chat com acesso a terminal.
+**Serviço de LLM da aplicação:** OpenAI, por API REST.
 
 **Quem fez o quê.** Esta é a implementação de referência do P0, preparada pelo professor
 com apoio do Claude. O professor definiu o problema, o recorte do escopo e os requisitos.
