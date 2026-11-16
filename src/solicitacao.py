@@ -12,7 +12,7 @@ INSTRUCOES = (
 
 def montar_solicitacao(entrada, config):
     """Monta o corpo JSON enviado à API a partir da entrada e da configuração."""
-    return {
+    corpo = {
         "model": config.modelo,
         "max_completion_tokens": config.max_tokens,
         "messages": [
@@ -23,3 +23,10 @@ def montar_solicitacao(entrada, config):
             },
         ],
     }
+    # Parâmetros opcionais só vão na requisição quando definidos pelo usuário,
+    # porque alguns modelos recusam valores diferentes do padrão.
+    if config.temperature is not None:
+        corpo["temperature"] = config.temperature
+    if config.reasoning_effort is not None:
+        corpo["reasoning_effort"] = config.reasoning_effort
+    return corpo

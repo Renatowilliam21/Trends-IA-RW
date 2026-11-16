@@ -27,6 +27,21 @@ def corpo_erro(codigo, mensagem="erro"):
     return {"error": {"code": codigo, "type": codigo, "message": mensagem}}
 
 
+VARIAVEIS = ("OPENAI_API_KEY", "OPENAI_MODEL", "OPENAI_MAX_TOKENS", "OPENAI_TIMEOUT",
+             "OPENAI_TEMPERATURE", "OPENAI_REASONING_EFFORT", "ROD_LOG_NIVEL",
+             "ROD_LOG_ARQUIVO", "ROD_CONFIG")
+
+
+@pytest.fixture(autouse=True)
+def ambiente_isolado(monkeypatch, tmp_path, request):
+    """Cada teste começa sem variáveis do usuário e com o log em pasta temporária."""
+    if request.node.get_closest_marker("real"):
+        return
+    for nome in VARIAVEIS:
+        monkeypatch.delenv(nome, raising=False)
+    monkeypatch.setenv("ROD_LOG_ARQUIVO", str(tmp_path / "logs" / "teste.log"))
+
+
 @pytest.fixture
 def config():
     return Configuracao(chave="sk-chave-de-teste")

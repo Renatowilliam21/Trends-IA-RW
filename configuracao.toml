@@ -1,0 +1,18 @@
+# Parâmetros do assistente. Não contém segredos: a chave fica só no .env.
+# Qualquer valor pode ser trocado aqui, sem mexer no código, ou por uma variável
+# de ambiente (que tem prioridade). Veja o README, seção "Configuração".
+
+[modelo]
+nome = "gpt-5.6-terra"          # variável: OPENAI_MODEL
+
+[geracao]
+max_tokens = 2048               # variável: OPENAI_MAX_TOKENS (conta tokens de raciocínio)
+# temperature = 1.0             # variável: OPENAI_TEMPERATURE (alguns modelos só aceitam o padrão)
+# reasoning_effort = "low"      # variável: OPENAI_REASONING_EFFORT (se o modelo suportar)
+
+[servico]
+timeout_segundos = 30           # variável: OPENAI_TIMEOUT
+
+[registro]
+nivel = "INFO"                  # variável: ROD_LOG_NIVEL (DEBUG, INFO, WARNING, ERROR)
+arquivo = "logs/assistente.log" # variável: ROD_LOG_ARQUIVO (relativo à pasta do projeto)
