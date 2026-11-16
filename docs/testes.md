@@ -1,4 +1,4 @@
-# Registro de testes
+﻿# Registro de testes
 
 ## 1. Testes simulados (sem rede, sem chave)
 
@@ -17,7 +17,7 @@ A API é substituída por uma função falsa (`monkeypatch` em `requests.post`).
 
 Executar com `python -m pytest -m real`. Chamam a OpenAI de verdade (3 chamadas, custo
 mínimo): resposta com citação, resposta "não encontrei" e credencial inexistente recusada
-pelo serviço. Resultado: A PREENCHER após a primeira execução.
+pelo serviço. Resultado em 15/11/2026: 3 passaram em 134 s (cerca de 45 s por chamada, por causa do modelo com raciocínio).
 
 ## 2. Testes manuais com a API real (execução por linha de comando)
 
