@@ -45,3 +45,23 @@ def test_main_arquivo_inexistente(monkeypatch, capsys):
     assert ra.main(["nao_existe.txt", "Pergunta?"]) == 1
     saida = capsys.readouterr()
     assert "não encontrado" in saida.err and "Traceback" not in saida.err
+
+
+def test_programa_real_sem_credencial_mostra_so_a_mensagem_de_erro(tmp_path):
+    """Roda o programa em processo separado: o pytest esconde logs soltos, o terminal não."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    raiz = Path(__file__).resolve().parent.parent
+    ambiente = dict(os.environ, OPENAI_API_KEY="", ROD_LOG_ARQUIVO=str(tmp_path / "l.log"))
+    trecho = tmp_path / "t.txt"
+    trecho.write_text("Art. 1. Texto.", encoding="utf-8")
+    resultado = subprocess.run(
+        [sys.executable, str(raiz / "src" / "rod_assistente.py"), str(trecho), "Pergunta?"],
+        capture_output=True, text=True, env=ambiente, cwd=tmp_path,
+    )
+    assert resultado.returncode == 1
+    linhas = [l for l in resultado.stderr.splitlines() if l.strip()]
+    assert len(linhas) == 1 and linhas[0].startswith("Erro: Credencial ausente")

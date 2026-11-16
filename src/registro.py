@@ -17,6 +17,9 @@ from pathlib import Path
 from config import RAIZ_PROJETO
 
 NOME = "rod"
+# Sem nenhum handler, o Python imprimiria avisos soltos no terminal. Este handler
+# nulo mantém o terminal limpo até configurar_registro() ser chamado.
+logging.getLogger(NOME).addHandler(logging.NullHandler())
 PADROES_SECRETOS = (
     re.compile(r"sk-[A-Za-z0-9_\-]{6,}"),
     re.compile(r"Bearer\s+\S+", re.IGNORECASE),
@@ -43,8 +46,9 @@ def configurar_registro(config):
     logger.setLevel(config.log_nivel)
     logger.propagate = False
     for antigo in list(logger.handlers):
-        antigo.close()
-        logger.removeHandler(antigo)
+        if not isinstance(antigo, logging.NullHandler):
+            antigo.close()
+            logger.removeHandler(antigo)
 
     caminho = Path(config.log_arquivo)
     if not caminho.is_absolute():
