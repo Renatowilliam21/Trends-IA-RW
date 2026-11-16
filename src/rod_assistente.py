@@ -7,7 +7,8 @@ Uso:
 """
 import sys
 
-import requests
+import requests  # noqa: F401  (usado pelos testes que simulam a API)
+
 from dotenv import load_dotenv
 
 from config import (  # noqa: F401  (nomes reexportados)
@@ -24,64 +25,9 @@ from entrada import (  # noqa: F401  (nomes reexportados)
     montar_entrada,
     validar_pergunta,
 )
+from cliente import chamar_modelo
 from erros import ErroAssistente
 from solicitacao import INSTRUCOES, montar_solicitacao  # noqa: F401
-
-def _detalhe_do_erro(resposta):
-    """Texto do erro devolvido pela API, em minúsculas, ou '' se não houver."""
-    try:
-        erro = resposta.json().get("error", {}) or {}
-        partes = [str(erro.get("code", "")), str(erro.get("type", "")),
-                  str(erro.get("message", ""))]
-        return " ".join(partes).lower()
-    except (ValueError, AttributeError, TypeError):
-        return ""
-
-
-def chamar_llm(corpo, config):
-    """Envia a requisição e devolve o JSON da resposta, tratando falhas."""
-    cabecalhos = {
-        "Authorization": f"Bearer {config.chave}",
-        "Content-Type": "application/json",
-    }
-    try:
-        resposta = requests.post(
-            config.url, json=corpo, headers=cabecalhos, timeout=config.timeout
-        )
-    except requests.exceptions.Timeout:
-        raise ErroAssistente(
-            f"O serviço não respondeu em {config.timeout} segundos. "
-            "Tente novamente."
-        )
-    except requests.exceptions.ConnectionError:
-        raise ErroAssistente("Sem conexão com o serviço. Verifique sua internet.")
-
-    status = resposta.status_code
-    detalhe = _detalhe_do_erro(resposta)
-    if status in (401, 403):
-        raise ErroAssistente("Chave de acesso inválida ou sem permissão.")
-    if status == 404 or "model_not_found" in detalhe:
-        raise ErroAssistente(
-            f"Modelo '{corpo.get('model')}' não encontrado ou sem acesso. "
-            "Confira OPENAI_MODEL no .env."
-        )
-    if status == 429 and "insufficient_quota" in detalhe:
-        raise ErroAssistente(
-            "Sem crédito na conta da API. A assinatura do ChatGPT não inclui a "
-            "API: adicione crédito em platform.openai.com."
-        )
-    if status == 429:
-        raise ErroAssistente("Limite de uso excedido. Aguarde e tente de novo.")
-    if status >= 500:
-        raise ErroAssistente("O serviço está indisponível no momento.")
-    if status != 200:
-        raise ErroAssistente(f"Requisição recusada pelo serviço (HTTP {status}).")
-
-    try:
-        return resposta.json()
-    except ValueError:
-        raise ErroAssistente("Resposta do serviço em formato inesperado.")
-
 
 def extrair_texto(dados):
     """Extrai o texto da resposta e valida o formato esperado."""
@@ -110,7 +56,7 @@ def responder(caminho, pergunta, config=None):
     entrada = montar_entrada(caminho, pergunta)
     config = config or carregar_configuracao(carregar_dotenv=False)
     corpo = montar_solicitacao(entrada, config)
-    return extrair_texto(chamar_llm(corpo, config))
+    return extrair_texto(chamar_modelo(corpo, config))
 
 
 def main(argv=None):
