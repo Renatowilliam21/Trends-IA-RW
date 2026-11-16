@@ -1,12 +1,25 @@
 # Registro de testes
 
-## 1. Testes automatizados (API simulada)
+## 1. Testes simulados (sem rede, sem chave)
 
-Executar com `python -m pytest`. Resultado na criação deste documento: 24 testes
-passando. Cobrem casos de sucesso e de falha (entrada, arquivo, chave, HTTP,
-falta de crédito, rede, recusa e formato da resposta).
+Executar com `python -m pytest`. Resultado na criação deste documento: 47 testes passando.
+A API é substituída por uma função falsa (`monkeypatch` em `requests.post`).
 
-## 2. Testes manuais com a API real
+| Arquivo | O que demonstra |
+| --- | --- |
+| `test_config.py` | credencial ausente, vazia, com aspas, com formato inválido; chave nunca exposta |
+| `test_entrada.py` | pergunta vazia ou longa, arquivo inexistente, vazio, fora de UTF-8 ou grande demais |
+| `test_cliente.py` | credencial recusada (401/403), modelo inexistente, limite de uso, falta de crédito, serviço indisponível, timeout, falha de comunicação |
+| `test_resposta.py` | resposta vazia, recusada, truncada ou em formato inesperado |
+| `test_fluxo.py` | fluxo completo, código de saída 1 e mensagens sem traceback |
+
+## 1.1 Testes reais automatizados (opcionais)
+
+Executar com `python -m pytest -m real`. Chamam a OpenAI de verdade (3 chamadas, custo
+mínimo): resposta com citação, resposta "não encontrei" e credencial inexistente recusada
+pelo serviço. Resultado: A PREENCHER após a primeira execução.
+
+## 2. Testes manuais com a API real (execução por linha de comando)
 
 Executados em 15/11/2026, na branch `openai`, com o modelo padrão (`gpt-5.6-terra`).
 Cada resposta foi conferida contra o texto do ROD (Resolução Consup nº 35/2015).
@@ -22,8 +35,8 @@ Comando base: `python src/rod_assistente.py <arquivo> "<pergunta>"`
 | M5 | Sucesso | `rod_trancamento.txt` | Quando posso trancar uma disciplina? | Nos primeiros 30 dias, mantendo 12 créditos, fora do 1º período (Art. 155) | Primeiros 30 dias, mínimo de 12 créditos, fora do 1º período, sem reprovação na disciplina e por requerimento à coordenação. Citou o Art. 155 e os §§ 1º a 4º | Sim |
 | M6 | Falha esperada | `rod_avaliacao.txt` | Qual o valor da bolsa de monitoria? | "Não encontrei essa informação no trecho fornecido." | "Não encontrei essa informação no trecho fornecido." | Sim |
 | M7 | Falha esperada | `nao_existe.txt` | Qualquer pergunta | Mensagem "Arquivo não encontrado" e código de saída 1 | Validado em teste automatizado | Sim |
-| M8 | Falha esperada | `rod_avaliacao.txt` | (chave removida do `.env`) | Mensagem "Chave de acesso ausente" | Validado em teste automatizado e visto na prática | Sim |
-| M9 | Falha esperada | `rod_avaliacao.txt` | (chave que não começa com `sk-`) | Mensagem "Chave de acesso inválida ou sem permissão" | Mensagem exibida, sem traceback | Sim |
+| M8 | Falha esperada | `rod_avaliacao.txt` | (chave removida do `.env`) | Mensagem "Credencial ausente" | Validado em teste simulado e visto na prática (versão do marco Básico) | Sim |
+| M9 | Falha esperada | `rod_avaliacao.txt` | (chave que não começa com `sk-`) | Mensagem "Credencial inválida ou sem permissão" | Mensagem exibida, sem traceback | Sim |
 
 Observações:
 
