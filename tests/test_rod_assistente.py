@@ -35,7 +35,7 @@ def trecho(tmp_path):
 
 @pytest.fixture(autouse=True)
 def chave(monkeypatch):
-    monkeypatch.setenv("OPENAI_API_KEY", "chave-de-teste")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-chave-de-teste")
     monkeypatch.delenv("OPENAI_MODEL", raising=False)
 
 
@@ -64,7 +64,7 @@ def test_requisicao_contem_trecho_pergunta_e_chave(monkeypatch, trecho):
     mensagens = capturado["json"]["messages"]
     assert mensagens[0]["role"] == "system"
     assert "Art. 99" in mensagens[1]["content"] and "Qual a média?" in mensagens[1]["content"]
-    assert capturado["headers"]["Authorization"] == "Bearer chave-de-teste"
+    assert capturado["headers"]["Authorization"] == "Bearer sk-chave-de-teste"
     assert capturado["json"]["model"] == ra.MODELO_PADRAO
     assert capturado["json"]["max_completion_tokens"] == ra.MAX_TOKENS_SAIDA
     assert capturado["url"] == ra.API_URL
@@ -113,7 +113,7 @@ def test_trecho_longo_demais(tmp_path):
 
 def test_chave_ausente(monkeypatch, trecho):
     monkeypatch.delenv("OPENAI_API_KEY")
-    with pytest.raises(ra.ErroAssistente, match="Chave de acesso ausente"):
+    with pytest.raises(ra.ErroAssistente, match="Credencial ausente"):
         ra.responder(trecho, "Pergunta?")
 
 

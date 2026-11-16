@@ -12,12 +12,14 @@ import sys
 import requests
 from dotenv import load_dotenv
 
-API_URL = "https://api.openai.com/v1/chat/completions"
-MODELO_PADRAO = "gpt-5.6-terra"
-TIMEOUT_SEGUNDOS = 30
-MAX_CARACTERES_TRECHO = 60_000
-# Em modelos com raciocínio, os tokens de "pensamento" contam neste limite.
-MAX_TOKENS_SAIDA = 2048
+from config import (  # noqa: F401  (nomes reexportados)
+    API_URL,
+    MAX_TOKENS_SAIDA,
+    MODELO_PADRAO,
+    TIMEOUT_SEGUNDOS,
+    carregar_configuracao,
+)
+from erros import ErroAssistente
 
 INSTRUCOES = (
     "Você é um assistente que responde perguntas sobre o Regulamento da "
@@ -27,10 +29,6 @@ INSTRUCOES = (
     "'Não encontrei essa informação no trecho fornecido.' "
     "Nunca invente regras."
 )
-
-
-class ErroAssistente(Exception):
-    """Falha prevista, com mensagem pensada para o usuário final."""
 
 
 def ler_trecho(caminho):
@@ -63,15 +61,7 @@ def validar_pergunta(pergunta):
     return pergunta
 
 
-def obter_chave():
-    """Lê a chave da API do ambiente (nunca do código)."""
-    chave = os.getenv("OPENAI_API_KEY", "").strip()
-    if not chave:
-        raise ErroAssistente(
-            "Chave de acesso ausente. Defina OPENAI_API_KEY no arquivo .env "
-            "(veja .env.example)."
-        )
-    return chave
+MAX_CARACTERES_TRECHO = 60_000
 
 
 def montar_requisicao(trecho, pergunta, modelo):
@@ -97,19 +87,19 @@ def _detalhe_do_erro(resposta):
         return ""
 
 
-def chamar_llm(corpo, chave):
+def chamar_llm(corpo, config):
     """Envia a requisição e devolve o JSON da resposta, tratando falhas."""
     cabecalhos = {
-        "Authorization": f"Bearer {chave}",
+        "Authorization": f"Bearer {config.chave}",
         "Content-Type": "application/json",
     }
     try:
         resposta = requests.post(
-            API_URL, json=corpo, headers=cabecalhos, timeout=TIMEOUT_SEGUNDOS
+            config.url, json=corpo, headers=cabecalhos, timeout=config.timeout
         )
     except requests.exceptions.Timeout:
         raise ErroAssistente(
-            f"O serviço não respondeu em {TIMEOUT_SEGUNDOS} segundos. "
+            f"O serviço não respondeu em {config.timeout} segundos. "
             "Tente novamente."
         )
     except requests.exceptions.ConnectionError:
@@ -164,14 +154,13 @@ def extrair_texto(dados):
     return texto
 
 
-def responder(caminho, pergunta, modelo=None):
+def responder(caminho, pergunta, config=None):
     """Fluxo completo: valida entradas, consulta o LLM e devolve o texto."""
     pergunta = validar_pergunta(pergunta)
     trecho = ler_trecho(caminho)
-    chave = obter_chave()
-    modelo = modelo or os.getenv("OPENAI_MODEL", MODELO_PADRAO)
-    corpo = montar_requisicao(trecho, pergunta, modelo)
-    return extrair_texto(chamar_llm(corpo, chave))
+    config = config or carregar_configuracao(carregar_dotenv=False)
+    corpo = montar_requisicao(trecho, pergunta, config.modelo)
+    return extrair_texto(chamar_llm(corpo, config))
 
 
 def main(argv=None):
