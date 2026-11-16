@@ -21,7 +21,19 @@ limite baixo pode gerar resposta vazia.
 JSON porque a saída é lida por uma pessoa e a validação de estrutura traria complexidade
 sem ganho para este caso.
 
-**Tratamento de falhas.** Toda falha prevista vira `ErroAssistente` com mensagem em
+**Organização em módulos.** Cada responsabilidade (entrada, configuração, solicitação,
+chamada ao modelo, resposta e apresentação) tem seu módulo, e `rod_assistente.py` só
+orquestra. Assim cada parte é testada isolada e uma troca de provedor mexe quase só em
+`config.py`, `solicitacao.py`, `cliente.py` e `resposta.py`.
+
+**Validação local da credencial.** Antes de qualquer chamada, `config.py` confere se a
+credencial existe, não tem aspas ou espaços e começa com `sk-`. Isso dá uma mensagem
+clara sem gastar uma requisição. A credencial recusada pelo serviço (HTTP 401 ou 403) é
+tratada à parte em `cliente.py`. Em nenhum caso a chave aparece em mensagens, em `repr` da
+configuração ou no corpo da requisição.
+
+**Tratamento de falhas.** Toda falha prevista vira uma subclasse de `ErroAssistente`
+(`ErroEntrada`, `ErroConfiguracao`, `ErroServico`, `ErroResposta`) com mensagem em
 português. O programa encerra com código 1 e sem traceback. Cobri chave ausente ou
 inválida, modelo inexistente, falta de conexão, tempo esgotado, limite de uso, falta de
 crédito na conta, indisponibilidade, recusa do modelo, entrada vazia e resposta fora do
@@ -32,8 +44,9 @@ o código lê o corpo do erro para distinguir os dois.
 `.gitignore`. O repositório traz apenas o `.env.example`.
 
 **Testes.** Os testes automatizados simulam a API com `monkeypatch`. Eles são rápidos,
-gratuitos e reproduzíveis. A qualidade real das respostas é verificada à parte, em
-execuções manuais registradas em `docs/testes.md`.
+gratuitos e reproduzíveis. Os testes reais ficam atrás do marcador `real` e só rodam com
+`pytest -m real`. A qualidade das respostas é verificada em execuções manuais registradas
+em `docs/testes.md`.
 
 **Limite do trecho.** 60 mil caracteres, para caber com folga na janela de contexto e
 evitar custo inesperado. O programa recusa trechos maiores com uma mensagem orientando o

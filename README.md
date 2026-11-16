@@ -53,18 +53,55 @@ Trechos disponíveis em `dados/`:
 
 Você pode usar qualquer outro `.txt` de até 60 mil caracteres.
 
-## Testes
+## Estrutura do código
 
-```bash
-python -m pytest
+| Módulo | Responsabilidade |
+| --- | --- |
+| `src/entrada.py` | captura dos argumentos e validação da pergunta e do arquivo |
+| `src/config.py` | carregamento e validação da configuração e da credencial |
+| `src/solicitacao.py` | preparação da solicitação enviada ao modelo |
+| `src/cliente.py` | chamada ao modelo e tradução das falhas de rede e HTTP |
+| `src/resposta.py` | tratamento da resposta (vazia, recusada, formato inesperado) |
+| `src/apresentacao.py` | exibição da resposta e das mensagens de erro |
+| `src/rod_assistente.py` | orquestra as etapas acima (ponto de entrada) |
+| `src/erros.py` | tipos de erro previstos |
+
+## Erros e mensagens
+
+O programa encerra com código 1 e uma mensagem em português, sem traceback e sem mostrar
+a credencial. Exemplos:
+
+```text
+$ python src/rod_assistente.py dados/rod_avaliacao.txt "   "
+Erro: A pergunta não pode estar vazia.
+
+$ python src/rod_assistente.py dados/rod_avaliacao.txt "Qual a média?"   # sem .env
+Erro: Credencial ausente. Defina OPENAI_API_KEY no arquivo .env (veja .env.example).
+
+$ python src/rod_assistente.py dados/rod_avaliacao.txt "Qual a média?"   # chave key_...
+Erro: A credencial em OPENAI_API_KEY não tem o formato esperado (chaves da OpenAI começam com 'sk-'). Gere uma em platform.openai.com/api-keys.
 ```
 
-Os testes usam a API simulada e não precisam de chave. Os casos executados com a API real
-estão em `docs/testes.md`.
+Outros casos tratados: credencial recusada pelo serviço, modelo inexistente, falta de
+crédito, limite de uso, serviço indisponível, falta de conexão, timeout, resposta vazia,
+recusa do modelo e resposta fora do formato.
+
+## Testes
+
+Há dois tipos, e eles não se misturam:
+
+| Tipo | Comando | Usa a API? | Precisa de chave? |
+| --- | --- | --- | --- |
+| Simulados (padrão) | `python -m pytest` | Não, `requests.post` é substituído | Não |
+| Reais (opcional) | `python -m pytest -m real` | Sim, gera custo pequeno | Sim, com crédito |
+
+Os testes simulados demonstram credencial ausente, credencial inválida, indisponibilidade,
+timeout, falha de comunicação e resposta inesperada. Os testes reais e as execuções
+manuais com a API real estão registrados em `docs/testes.md`.
 
 ## Documentação
 
-- `docs/testes.md`: casos de sucesso e de falha
+- `docs/testes.md`: testes simulados e reais, casos de sucesso e de falha
 - `docs/decisoes.md`: principais decisões de projeto
 - `docs/uso-de-ia.md`: como ferramentas de IA foram usadas no desenvolvimento
 
