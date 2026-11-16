@@ -19,7 +19,7 @@ A API é substituída por uma função falsa (`monkeypatch` em `requests.post`).
 
 Executar com `python -m pytest -m real`. Chamam a OpenAI de verdade (3 chamadas, custo
 mínimo): resposta com citação, resposta "não encontrei" e credencial inexistente recusada
-pelo serviço. Resultado em 15/11/2026: 3 passaram em 134 s (cerca de 45 s por chamada, por causa do modelo com raciocínio).
+pelo serviço. Resultado em 15/11/2026: 3 passaram em 134 s no total. Uma chamada isolada, medida depois pelo registro, levou 3,6 s; a causa dos 134 s não foi investigada.
 
 ## 2. Testes manuais com a API real (execução por linha de comando)
 

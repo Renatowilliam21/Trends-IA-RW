@@ -51,6 +51,9 @@ cp .env.example .env              # Windows: copy .env.example .env
 OPENAI_API_KEY=sk-...sua-chave...
 ```
 
+Se ao executar aparecer "Credencial ausente", a chave ainda não foi preenchida ou o arquivo
+não foi salvo (o `.env.example` vem com `OPENAI_API_KEY=` vazio).
+
 O `.env` está no `.gitignore` e nunca deve ser enviado ao GitHub. A chave é lida somente
 dele (ou do ambiente), nunca do `configuracao.toml`.
 
@@ -118,6 +121,8 @@ rotação de 200 KB). Exemplo:
 2026-11-15 21:40:09 INFO rod.cliente resposta status=200 latencia_ms=7312
 2026-11-15 21:40:09 INFO rod sucesso resposta_chars=142 prompt_tokens=1022 completion_tokens=310 total_tokens=1332
 ```
+
+O arquivo `logs/assistente.log` só é criado na primeira execução com configuração válida.
 
 O registro **não** guarda chave, cabeçalhos, texto da pergunta, conteúdo do trecho, texto
 da resposta nem caminhos de arquivo. Só tamanhos, status, tempo, contagem de tokens e o

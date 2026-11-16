@@ -52,8 +52,26 @@ notepad .env
 python src\rod_assistente.py dados\rod_avaliacao.txt "Qual a média mínima para aprovação direta na graduação?"
 ```
 
-Resultado: A PREENCHER após a execução (data, versão do Python e do pip, problemas
-encontrados e correções).
+Resultado em 15/11/2026, Windows, Python 3.14.3, pasta nova `validacao-limpa`:
+
+| Passo | Resultado |
+| --- | --- |
+| `git clone`, `python -m venv`, `pip install -r requirements.txt` | OK |
+| `python -m pytest` | 74 passaram |
+| Pergunta real sobre a média mínima (chave `sk-` válida) | Resposta correta: 7,0 e frequência de 75%, citando o Art. 99, II |
+| `logs\assistente.log` | 3 linhas: início, `status=200 latencia_ms=3645` e sucesso com `total_tokens=776`. Sem chave e sem o texto da pergunta |
+
+### Dificuldade encontrada e ajuste
+
+- **O que aconteceu:** na primeira tentativa o programa respondeu "Credencial ausente" e a
+  pasta `logs` não existia. A chave ainda não tinha sido preenchida no `.env` (o arquivo
+  copiado do exemplo vem com `OPENAI_API_KEY=` vazio). O comportamento do programa estava
+  correto, e a mensagem foi clara, mas o README não deixava explícito que o log só é criado
+  depois que a configuração é aceita.
+- **Ajuste:** o README ganhou uma observação sobre esses dois pontos (README, seção
+  Configuração).
+- **Nota sobre tempo:** a chamada isolada levou 3,6 s. No registro dos testes reais, o total
+  de 134 s para 3 chamadas não foi investigado. Não se deve atribuí-lo ao modelo sem medir.
 
 ## Validação 3: outra pessoa
 
