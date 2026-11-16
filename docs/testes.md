@@ -2,7 +2,7 @@
 
 ## 1. Testes simulados (sem rede, sem chave)
 
-Executar com `python -m pytest`. Resultado na criação deste documento: 47 testes passando.
+Executar com `python -m pytest`. Resultado na criação deste documento: 73 testes passando.
 A API é substituída por uma função falsa (`monkeypatch` em `requests.post`).
 
 | Arquivo | O que demonstra |
@@ -11,6 +11,8 @@ A API é substituída por uma função falsa (`monkeypatch` em `requests.post`).
 | `test_entrada.py` | pergunta vazia ou longa, arquivo inexistente, vazio, fora de UTF-8 ou grande demais |
 | `test_cliente.py` | credencial recusada (401/403), modelo inexistente, limite de uso, falta de crédito, serviço indisponível, timeout, falha de comunicação |
 | `test_resposta.py` | resposta vazia, recusada, truncada ou em formato inesperado |
+| `test_parametros.py` | parâmetros pelo TOML e pelo ambiente, prioridade, valores inválidos, parâmetros opcionais na solicitação |
+| `test_registro.py` | log com dados úteis e sem chave, pergunta, trecho, resposta ou caminho; falha ao gravar o log |
 | `test_fluxo.py` | fluxo completo, código de saída 1 e mensagens sem traceback |
 
 ## 1.1 Testes reais automatizados (opcionais)

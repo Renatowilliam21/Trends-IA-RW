@@ -62,3 +62,10 @@ def test_resposta_que_nao_e_json(config, simular):
     simular(RespostaFalsa(json_invalido=True))
     with pytest.raises(ErroServico, match="formato inesperado"):
         chamar_modelo(CORPO, config)
+
+
+def test_erro_400_mostra_motivo_da_api(config, simular):
+    simular(RespostaFalsa(status=400, corpo=corpo_erro(
+        "unsupported_value", "temperature nao suportada por este modelo")))
+    with pytest.raises(ErroServico, match="HTTP 400.*temperature nao suportada"):
+        chamar_modelo(CORPO, config)

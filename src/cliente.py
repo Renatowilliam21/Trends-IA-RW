@@ -1,7 +1,12 @@
 """Chamada ao modelo: envia a solicitação e traduz as falhas em mensagens claras."""
+import logging
+import time
+
 import requests
 
 from erros import ErroServico
+
+log = logging.getLogger("rod.cliente")
 
 
 def _detalhe_do_erro(resposta):
@@ -18,6 +23,15 @@ def _detalhe_do_erro(resposta):
         return ""
 
 
+def _mensagem_curta(resposta, limite=200):
+    """Mensagem de erro da API (ajuda a achar um parâmetro recusado), truncada."""
+    try:
+        mensagem = str(resposta.json().get("error", {}).get("message", "")).strip()
+    except (ValueError, AttributeError, TypeError):
+        return ""
+    return mensagem[:limite]
+
+
 def chamar_modelo(corpo, config):
     """Envia a requisição e devolve o JSON da resposta, tratando falhas.
 
@@ -27,21 +41,27 @@ def chamar_modelo(corpo, config):
         "Authorization": f"Bearer {config.chave}",
         "Content-Type": "application/json",
     }
+    inicio = time.perf_counter()
     try:
         resposta = requests.post(
             config.url, json=corpo, headers=cabecalhos, timeout=config.timeout
         )
     except requests.exceptions.Timeout:
+        log.warning("timeout apos %ss", config.timeout)
         raise ErroServico(
             f"O serviço não respondeu em {config.timeout} segundos. "
             "Tente novamente."
         )
     except requests.exceptions.ConnectionError:
+        log.warning("falha de conexao")
         raise ErroServico("Sem conexão com o serviço. Verifique sua internet.")
     except requests.exceptions.RequestException:
+        log.warning("falha de comunicacao")
         raise ErroServico("Falha de comunicação com o serviço. Tente novamente.")
 
     status = resposta.status_code
+    log.info("resposta status=%s latencia_ms=%d", status,
+             (time.perf_counter() - inicio) * 1000)
     detalhe = _detalhe_do_erro(resposta)
     if status in (401, 403):
         raise ErroServico(
@@ -64,7 +84,9 @@ def chamar_modelo(corpo, config):
             "O serviço está indisponível no momento. Tente novamente mais tarde."
         )
     if status != 200:
-        raise ErroServico(f"Requisição recusada pelo serviço (HTTP {status}).")
+        motivo = _mensagem_curta(resposta)
+        sufixo = f": {motivo}" if motivo else "."
+        raise ErroServico(f"Requisição recusada pelo serviço (HTTP {status}){sufixo}")
 
     try:
         return resposta.json()
