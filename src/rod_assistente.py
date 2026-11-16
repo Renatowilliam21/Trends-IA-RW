@@ -5,8 +5,6 @@ Usa a API REST de Chat Completions da OpenAI.
 Uso:
     python src/rod_assistente.py dados/rod_avaliacao.txt "Qual a média para aprovação?"
 """
-import argparse
-import os
 import sys
 
 import requests
@@ -19,6 +17,13 @@ from config import (  # noqa: F401  (nomes reexportados)
     TIMEOUT_SEGUNDOS,
     carregar_configuracao,
 )
+from entrada import (  # noqa: F401  (nomes reexportados)
+    MAX_CARACTERES_TRECHO,
+    capturar_argumentos,
+    ler_trecho,
+    montar_entrada,
+    validar_pergunta,
+)
 from erros import ErroAssistente
 
 INSTRUCOES = (
@@ -29,39 +34,6 @@ INSTRUCOES = (
     "'Não encontrei essa informação no trecho fornecido.' "
     "Nunca invente regras."
 )
-
-
-def ler_trecho(caminho):
-    """Lê o arquivo de texto com o trecho do regulamento."""
-    try:
-        with open(caminho, encoding="utf-8") as arquivo:
-            trecho = arquivo.read().strip()
-    except FileNotFoundError:
-        raise ErroAssistente(f"Arquivo não encontrado: {caminho}")
-    except UnicodeDecodeError:
-        raise ErroAssistente(f"O arquivo {caminho} não está em UTF-8.")
-    except OSError as erro:
-        raise ErroAssistente(f"Não foi possível ler {caminho}: {erro.strerror}")
-
-    if not trecho:
-        raise ErroAssistente(f"O arquivo {caminho} está vazio.")
-    if len(trecho) > MAX_CARACTERES_TRECHO:
-        raise ErroAssistente(
-            f"O trecho tem {len(trecho)} caracteres; o limite é "
-            f"{MAX_CARACTERES_TRECHO}. Use apenas as seções necessárias."
-        )
-    return trecho
-
-
-def validar_pergunta(pergunta):
-    """Rejeita perguntas vazias e devolve o texto sem espaços sobrando."""
-    pergunta = (pergunta or "").strip()
-    if not pergunta:
-        raise ErroAssistente("A pergunta não pode estar vazia.")
-    return pergunta
-
-
-MAX_CARACTERES_TRECHO = 60_000
 
 
 def montar_requisicao(trecho, pergunta, modelo):
@@ -156,24 +128,17 @@ def extrair_texto(dados):
 
 def responder(caminho, pergunta, config=None):
     """Fluxo completo: valida entradas, consulta o LLM e devolve o texto."""
-    pergunta = validar_pergunta(pergunta)
-    trecho = ler_trecho(caminho)
+    entrada = montar_entrada(caminho, pergunta)
     config = config or carregar_configuracao(carregar_dotenv=False)
-    corpo = montar_requisicao(trecho, pergunta, config.modelo)
+    corpo = montar_requisicao(entrada.trecho, entrada.pergunta, config.modelo)
     return extrair_texto(chamar_llm(corpo, config))
 
 
 def main(argv=None):
     load_dotenv()
-    analisador = argparse.ArgumentParser(
-        description="Responde perguntas sobre um trecho do ROD do IFCE."
-    )
-    analisador.add_argument("trecho", help="arquivo .txt com o trecho do ROD")
-    analisador.add_argument("pergunta", help="pergunta entre aspas")
-    args = analisador.parse_args(argv)
-
+    caminho, pergunta = capturar_argumentos(argv)
     try:
-        print(responder(args.trecho, args.pergunta))
+        print(responder(caminho, pergunta))
     except ErroAssistente as erro:
         print(f"Erro: {erro}", file=sys.stderr)
         return 1
