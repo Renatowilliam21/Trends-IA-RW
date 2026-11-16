@@ -27,29 +27,8 @@ from entrada import (  # noqa: F401  (nomes reexportados)
 )
 from cliente import chamar_modelo
 from erros import ErroAssistente
+from resposta import extrair_texto
 from solicitacao import INSTRUCOES, montar_solicitacao  # noqa: F401
-
-def extrair_texto(dados):
-    """Extrai o texto da resposta e valida o formato esperado."""
-    try:
-        escolha = dados["choices"][0]
-        mensagem = escolha["message"]
-    except (KeyError, IndexError, TypeError):
-        raise ErroAssistente("Resposta do serviço em formato inesperado.")
-
-    if mensagem.get("refusal"):
-        raise ErroAssistente("O modelo recusou-se a responder a esta pergunta.")
-
-    texto = (mensagem.get("content") or "").strip()
-    if not texto:
-        if escolha.get("finish_reason") == "length":
-            raise ErroAssistente(
-                "A resposta foi interrompida pelo limite de tokens antes de "
-                "gerar texto. Tente uma pergunta mais curta."
-            )
-        raise ErroAssistente("O serviço devolveu uma resposta vazia.")
-    return texto
-
 
 def responder(caminho, pergunta, config=None):
     """Fluxo completo: valida entradas, consulta o LLM e devolve o texto."""
