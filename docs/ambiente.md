@@ -19,6 +19,11 @@ limpos de validação (Linux, `pip install -r requirements.txt` em 15/11/2026):
 | python-dotenv | `>=1.0,<2` | 1.2.4 | leitura do arquivo `.env` |
 | pytest | `>=8.0,<10` | 9.2.0 | testes automatizados |
 
+No Windows com Python 3.14.3 (validação de 15/11/2026), as três bibliotecas ficaram nas mesmas
+versões (requests 2.34.2, python-dotenv 1.2.4, pytest 9.2.0). O `pip freeze` lista também
+colorama 0.4.6 (só Windows), iniconfig 2.3.1, packaging 26.3, pluggy 1.7.0 e Pygments 2.21.0,
+trazidos pelo pytest.
+
 Dependências indiretas instaladas junto com o `requests`: urllib3 2.8.0, certifi 2026.10.23,
 charset-normalizer 3.5.2 e idna 3.20.
 
