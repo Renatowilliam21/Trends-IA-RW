@@ -1,0 +1,47 @@
+Fonte: Regulamento da Organização Didática (ROD) do IFCE, Resolução Consup nº 35, de 22 de junho de 2015.
+Trecho: avaliação nos cursos com regime de créditos por disciplina.
+
+Art. 97. A sistemática de avaliação dos conhecimentos construídos, nos cursos com regime de crédito
+por disciplina, com periodicidade semestral, se desenvolverá em duas etapas.
+
+§ 1º Deverá ser registrada no sistema acadêmico apenas uma nota para a primeira etapa (N1) e
+uma nota para a segunda etapa (N2), com pesos 2 e 3, respectivamente.
+
+§ 2º O docente deverá aplicar, no mínimo, duas avaliações em cada uma das etapas.
+
+§ 3º O critério para composição da nota de cada etapa, a partir das notas obtidas em cada uma das
+avaliações, ficará a cargo do docente da disciplina, em consonância com o estabelecido no PUD.
+
+Art. 98. O cálculo da média parcial (MP) de cada disciplina deve ser feito de acordo com a seguinte
+equação:
+
+MP = (2 x N1 + 3 x N2) / 5
+
+Art. 99. Deverá ser considerado aprovado no componente curricular o estudante que, ao final do
+período letivo, tenha frequência igual ou superior a 75% (setenta e cinco por cento) do total de horas
+letivas e tenha obtido média parcial (MP) igual ou superior a:
+
+I.       6,0 (seis), para disciplinas de cursos técnicos concomitantes e subsequentes.
+II.      7,0 (sete), para disciplinas de cursos de graduação.
+Parágrafo único: Os estudantes aprovados com a nota da MP não precisarão realizar a avaliação final
+(AF) e sua média final (MF) deverá ser igual a sua média parcial (MP).
+
+Art. 100. Deverão fazer avaliação final (AF) o estudante de curso técnico que obtiver MP inferior a 6,0
+(seis) e maior ou igual a 3,0 (três), e o estudante de graduação que obtiver MP inferior a 7,0 (sete) e
+maior ou igual a 3,0 (três).
+
+§ 1º A avaliação final deverá ser aplicada no mínimo 3 (três) dias letivos após o registro do resultado
+da MP no sistema acadêmico.
+
+§ 2º A avaliação final poderá contemplar todo o conteúdo trabalhado no período letivo.
+
+§ 3º A nota da avaliação final (AF) deverá ser registrada no sistema acadêmico.
+
+§ 4º O cálculo da média final (MF) o estudante referido no caput deverá ser efetuado de acordo
+com a seguinte equação:
+
+MF = (MP + AF) / 2
+
+§ 5º Deverá ser considerado aprovado na disciplina o estudante que, após a realização da avaliação
+final, obtiver média final (MF) igual ou maior que 5,0 (cinco).
+
